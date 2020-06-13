@@ -8,8 +8,9 @@ FROM debian:9
 # Setup basic system dependencies. This is what I'd like to have handy
 # in the system image, and what's necessary to kickstart the build.
 RUN apt update && apt install --yes --no-install-recommends \
-        sudo curl wget unzip git nano \
-        build-essential ninja-build openjdk-8-jdk && \
+        sudo curl wget unzip git nano less \
+        build-essential ninja-build openjdk-8-jdk \
+        python autoconf libssl-dev && \
     apt --yes autoremove && \
     apt --yes clean && \
     rm -rf /var/lib/apt/lists/*
@@ -41,7 +42,35 @@ ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tool
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
         'build-tools;28.0.3' \
-        'cmake;3.6.4111459' \
         'ndk;20.0.5594570' \
         'platforms;android-28' \
         'platform-tools'
+
+# Build GMP
+COPY scripts/build-gmp.sh /home/user/build-gmp/
+RUN sudo chown -R user:user ~/build-gmp && \
+    cd ~/build-gmp && \
+    ./build-gmp.sh && \
+    cd && rm -r ~/build-gmp
+
+# Build MPFR (requires GMP)
+COPY scripts/build-mpfr.sh /home/user/build-mpfr/
+RUN sudo chown -R user:user ~/build-mpfr && \
+    cd ~/build-mpfr && \
+    ./build-mpfr.sh && \
+    cd && rm -r ~/build-mpfr
+
+# Build CMake
+COPY scripts/build-cmake.sh /home/user/build-cmake/
+RUN sudo chown -R user:user ~/build-cmake && \
+    cd ~/build-cmake && \
+    ./build-cmake.sh && \
+    cd && rm -r ~/build-cmake
+
+# Build Boost library
+COPY scripts/build-boost.sh    /home/user/build-boost/
+COPY scripts/Boost-for-Android /home/user/build-boost/Boost-for-Android
+RUN sudo chown -R user:user ~/build-boost && \
+    cd ~/build-boost && \
+    ./build-boost.sh && \
+    cd && rm -r ~/build-boost
