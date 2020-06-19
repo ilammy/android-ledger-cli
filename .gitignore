@@ -1,2 +1,6 @@
 # Default build directory
-/build/
+build/
+
+# Gradle stuff
+.gradle/
+.cxx/

@@ -1,0 +1,25 @@
+// Dependencies for Gradle itself
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.0.0'
+    }
+}
+
+// Common settings for for projects
+allprojects {
+    buildscript {
+        repositories {
+            google()
+            jcenter()
+        }
+    }
+    repositories {
+        google()
+        jcenter()
+    }
+}

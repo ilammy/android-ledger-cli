@@ -1,0 +1,23 @@
+apply plugin: 'com.android.library'
+
+android {
+    // Android API levels
+    compileSdkVersion    28     // what we compile against
+    defaultConfig {
+        minSdkVersion    21     // minimum supported version
+        targetSdkVersion 28     // target feature version
+    }
+
+    // Android NDK version
+    // Must match the one in the Docker image
+    ndkVersion "20.0.5594570"
+
+    // CMake build of the native executable
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            // Must match the one the Docker image
+            version "3.17.3"
+        }
+    }
+}
