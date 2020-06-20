@@ -10,18 +10,25 @@
 # Environment variables:
 #
 #     ANDROID_API         - minimum target Android API (21)
-#     ANDROID_TARGETS     - Android CPU targets        ({aarch64,armv7a,i686,x86_64}-linux-android)
 #     ANDROID_NDK_VERSION - Android NDK version to use (20.0.5594570)
 #     ANDROID_NDK         - path to Android NDK        ($ANDROID_HOME/ndk/$ANDROID_NDK_VERSION)
 #     ANDROID_HOME        - path to Android SDK        ($HOME/android-sdk)
+#     GMP_PATH            - where to install GMP       (/opt/gmp)
 
 set -eu
 
 ANDROID_API=${ANDROID_API:-21}
-ANDROID_TARGETS=${ANDROID_TARGETS:-aarch64-linux-android armv7a-linux-androideabi i686-linux-android x86_64-linux-android}
 ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
 ANDROID_NDK_VERSION=${ANDROID_NDK_VERSION:-20.0.5594570}
 ANDROID_NDK=${ANDROID_NDK:-$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION}
+
+#   ABI         target triplet              compiler toolchain
+ANDROID_TARGETS="
+    arm64-v8a   aarch64-linux-android       aarch64-linux-android
+    armeabi-v7a armv7a-linux-androideabi    arm-linux-androideabi
+    x86         i686-linux-android          i686-linux-android
+    x86_64      x86_64-linux-android        x86_64-linux-android
+"
 
 GMP_VERSION=6.2.0
 GMP_SHA_256=258e6cd51b3fbdfc185c716d55f82c08aff57df0c6fbd143cf6ed561267a1526
@@ -47,18 +54,14 @@ export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
 
 mkdir build
 cd build
-for target in $ANDROID_TARGETS; do
+for abi in $(echo "$ANDROID_TARGETS" | awk '{print $1}'); do
+    target=$(echo "$ANDROID_TARGETS"    | awk -v abi=$abi '$1 == abi {print $2}')
+    toolchain=$(echo "$ANDROID_TARGETS" | awk -v abi=$abi '$1 == abi {print $3}')
+    compiler=$target$API
     echo "Building GMP for $target..."
     mkdir $target
     cd $target
     export TARGET=$target
-    compiler=$TARGET$API
-    toolchain=$TARGET
-    # ARM is a bit special because historically it had common tools
-    # but multiple compilers. Anyway, handle this special case...
-    if [[ "$toolchain" = armv7a-linux-androideabi ]]; then
-        toolchain=arm-linux-androideabi
-    fi
     export AR=$TOOLCHAIN/bin/$toolchain-ar
     export AS=$TOOLCHAIN/bin/$toolchain-as
     export CC=$TOOLCHAIN/bin/$compiler-clang
@@ -69,7 +72,7 @@ for target in $ANDROID_TARGETS; do
     ../../configure \
         --disable-shared \
         --host=$target \
-        --prefix=/opt/gmp_$GMP_VERSION/$target
+        --prefix=$GMP_PATH/$abi
     make -j$(nproc)
     sudo make install
     cd ..

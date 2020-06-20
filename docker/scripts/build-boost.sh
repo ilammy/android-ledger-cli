@@ -12,6 +12,7 @@
 #     ANDROID_NDK         - path to Android NDK        ($ANDROID_HOME/ndk/$ANDROID_NDK_VERSION)
 #     ANDROID_HOME        - path to Android SDK        ($HOME/android-sdk)
 #     BOOST_VERSION       - Boost version to compile   (1.73.0)
+#     BOOST_PATH          - where to install Boost     (/opt/boost)
 
 set -eu
 
@@ -20,6 +21,7 @@ ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
 ANDROID_NDK_VERSION=${ANDROID_NDK_VERSION:-20.0.5594570}
 ANDROID_NDK=${ANDROID_NDK:-$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION}
 BOOST_VERSION=${BOOST_VERSION:-1.73.0}
+BOOST_PATH=${BOOST_PATH:-/opt/boost}
 
 # Boost libraries to compile
 # See ledger's CMakeLists.txt for the list
@@ -43,11 +45,5 @@ cd Boost-for-Android
     --with-libraries=$BOOST_LIBRARIES \
     "$ANDROID_NDK"
 
-sudo mkdir /opt/boost_$BOOST_VERSION
-sudo cp -r build/out/* /opt/boost_$BOOST_VERSION
-
-# Tweak the directory names to proper target triples used everywhere else.
-sudo mv /opt/boost_$BOOST_VERSION/arm64-v8a   /opt/boost_$BOOST_VERSION/aarch64-linux-android
-sudo mv /opt/boost_$BOOST_VERSION/armeabi-v7a /opt/boost_$BOOST_VERSION/armv7a-linux-androideabi
-sudo mv /opt/boost_$BOOST_VERSION/x86         /opt/boost_$BOOST_VERSION/i686-linux-android
-sudo mv /opt/boost_$BOOST_VERSION/x86_64      /opt/boost_$BOOST_VERSION/x86_64-linux-android
+sudo mkdir "$BOOST_PATH"
+sudo cp -r build/out/* "$BOOST_PATH"
