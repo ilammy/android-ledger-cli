@@ -1,3 +1,6 @@
 [submodule "docker/scripts/Boost-for-Android"]
 	path = docker/scripts/Boost-for-Android
 	url = https://github.com/moritz-wundke/Boost-for-Android
+[submodule "ledger/ledger"]
+	path = ledger/ledger
+	url = https://github.com/ledger/ledger
