@@ -69,8 +69,13 @@ for abi in $(echo "$ANDROID_TARGETS" | awk '{print $1}'); do
     export LD=$TOOLCHAIN/bin/$toolchain-ld
     export RANLIB=$TOOLCHAIN/bin/$toolchain-ranlib
     export STRIP=$TOOLCHAIN/bin/$toolchain-strip
+    # Make sure to use positional-independent code. Android is anal about it
+    # because on some architectures not using PIC results in text relocations
+    # which Android forbids.
+    # https://android.googlesource.com/platform/bionic/+/master/android-changes-for-ndk-developers.md
     ../../configure \
         --disable-shared \
+        --with-pic \
         --host=$target \
         --prefix=$GMP_PATH/$abi
     make -j$(nproc)
