@@ -35,6 +35,16 @@ $(BUILD)/.check-submodules:
 ## Docker image to use
 DOCKER_IMAGE ?= ilammy/android-ledger-cli:latest
 
+## If set to "yes", force Docker image rebuild, even if the image exists locally.
+DOCKER_FORCE_BUILD ?= no
+
+## Use Docker cache. Set to "no" to force complete image rebuild.
+DOCKER_CACHE ?= yes
+
+ifeq ($(DOCKER_CACHE),no)
+docker_cache_opts = --no-cache
+endif
+
 ## Build Docker image
 docker-image: $(BUILD)/.docker-image
 
@@ -43,10 +53,15 @@ docker-image: $(BUILD)/.docker-image
 # Then check it again, now for real. If it works, create a stamp file.
 $(BUILD)/.docker-image: check-submodules
 	@echo "Checking $(DOCKER_IMAGE)..."
-	@docker image pull --quiet $(DOCKER_IMAGE) 2>/dev/null || true
+	@docker image pull $(DOCKER_IMAGE) 2>/dev/null || true
+ifeq ($(DOCKER_FORCE_BUILD),yes)
+	@docker build --tag=$(DOCKER_IMAGE) $(docker_cache_opts) docker && \
+	 docker/scripts/prefetch-gradle.sh $(DOCKER_IMAGE)
+else
 	@docker run $(DOCKER_IMAGE) true || \
-	 (docker build --tag=$(DOCKER_IMAGE) docker && \
+	 (docker build --tag=$(DOCKER_IMAGE) $(docker_cache_opts) docker && \
 	  docker/scripts/prefetch-gradle.sh $(DOCKER_IMAGE))
+endif
 	@docker run $(DOCKER_IMAGE) true
 	@echo "Docker image $(DOCKER_IMAGE) ready"
 	@mkdir -p $(@D)
