@@ -41,7 +41,7 @@ ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tool
 # We need a particular NDK version to compile Boost
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
-        'build-tools;28.0.3' \
+        'build-tools;29.0.2' \
         'ndk;20.0.5594570' \
         'platforms;android-28' \
         'platform-tools'
