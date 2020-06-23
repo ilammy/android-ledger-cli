@@ -21,3 +21,8 @@ android {
         }
     }
 }
+
+dependencies {
+    // @NonNull and other annotations
+    implementation 'com.android.support:support-annotations:26.1.0'
+}
