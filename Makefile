@@ -3,7 +3,7 @@
 # === Early setup ==============
 
 # Default goal for "make"
-.DEFAULT_GOAL = docker-image
+.DEFAULT_GOAL = ledger
 
 # Shell for target commands
 SHELL = /bin/bash
@@ -42,6 +42,7 @@ docker-image: $(BUILD)/.docker-image
 # Check if the image is available, and if not then build and tag one.
 # Then check it again, now for real. If it works, create a stamp file.
 $(BUILD)/.docker-image: check-submodules
+	@echo "Checking $(DOCKER_IMAGE)..."
 	@docker image pull --quiet $(DOCKER_IMAGE) 2>/dev/null || true
 	@docker run $(DOCKER_IMAGE) true || \
 	 docker build --tag=$(DOCKER_IMAGE) docker
@@ -49,3 +50,22 @@ $(BUILD)/.docker-image: check-submodules
 	@echo "Docker image $(DOCKER_IMAGE) ready"
 	@mkdir -p $(@D)
 	@touch $@
+
+# === Ledger ===================
+
+# Path to resulting AAR
+AAR_PATH = ledger/build/outputs/aar/ledger-release.aar
+
+# Path to build directory inside Docker container
+DOCKER_PATH = /home/user/android-ledger-cli
+
+## Build Ledger AAR
+ledger: $(AAR_PATH)
+
+$(AAR_PATH): check-submodules docker-image
+	@echo "Building Ledger..."
+	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
+	     $(DOCKER_IMAGE) \
+	     /bin/bash -c "cd $(DOCKER_PATH) && ./gradlew assembleRelease"
+	@echo
+	@echo "Output AAR: $@"
