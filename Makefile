@@ -45,7 +45,8 @@ $(BUILD)/.docker-image: check-submodules
 	@echo "Checking $(DOCKER_IMAGE)..."
 	@docker image pull --quiet $(DOCKER_IMAGE) 2>/dev/null || true
 	@docker run $(DOCKER_IMAGE) true || \
-	 docker build --tag=$(DOCKER_IMAGE) docker
+	 (docker build --tag=$(DOCKER_IMAGE) docker && \
+	  docker/scripts/prefetch-gradle.sh $(DOCKER_IMAGE))
 	@docker run $(DOCKER_IMAGE) true
 	@echo "Docker image $(DOCKER_IMAGE) ready"
 	@mkdir -p $(@D)
