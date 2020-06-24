@@ -85,3 +85,7 @@ $(AAR_PATH): check-submodules docker-image
 	     /bin/bash -c "cd $(DOCKER_PATH) && ./gradlew assembleRelease"
 	@echo
 	@echo "Output AAR: $@"
+
+## Start an interactive session in Docker container.
+docker-shell: check-submodules docker-image
+	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) /bin/bash || true
