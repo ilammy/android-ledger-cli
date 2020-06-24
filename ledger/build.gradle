@@ -26,3 +26,20 @@ dependencies {
     // @NonNull and other annotations
     implementation 'com.android.support:support-annotations:26.1.0'
 }
+
+// Generating additional JARs for JCenter
+
+task generateSourceJar(type: Jar) {
+    archiveClassifier = 'source'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task generateJavadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+}
+
+task generateJavadocJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from generateJavadoc.destinationDir
+    dependsOn 'generateJavadoc'
+}
