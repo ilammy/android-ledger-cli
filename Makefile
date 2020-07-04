@@ -18,6 +18,8 @@ BUILD ?= build
 ## Clean the build directory
 clean:
 	@rm -rf $(BUILD)
+	@rm -rf ledger/build
+	@rm -rf ledger/.cxx
 
 # === Git helpers ==============
 
