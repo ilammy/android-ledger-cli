@@ -50,20 +50,20 @@ endif
 ## Build Docker image
 docker-image: $(BUILD)/.docker-image
 
+# If the build is forced, ignore the stamp file presence.
+ifeq ($(DOCKER_FORCE_BUILD),yes)
+.PHONY: $(BUILD)/.docker-image
+endif
+
 # First, try pulling the latest version of the image. That might fail.
 # Check if the image is available, and if not then build and tag one.
 # Then check it again, now for real. If it works, create a stamp file.
 $(BUILD)/.docker-image: check-submodules
 	@echo "Checking $(DOCKER_IMAGE)..."
 	@docker image pull $(DOCKER_IMAGE) 2>/dev/null || true
-ifeq ($(DOCKER_FORCE_BUILD),yes)
-	@docker build --tag=$(DOCKER_IMAGE) $(docker_cache_opts) docker && \
-	 docker/scripts/prefetch-gradle.sh $(DOCKER_IMAGE)
-else
-	@docker run $(DOCKER_IMAGE) true || \
+	@(test "$(DOCKER_FORCE_BUILD)" = "no" && docker run $(DOCKER_IMAGE) true) || \
 	 (docker build --tag=$(DOCKER_IMAGE) $(docker_cache_opts) docker && \
 	  docker/scripts/prefetch-gradle.sh $(DOCKER_IMAGE))
-endif
 	@docker run $(DOCKER_IMAGE) true
 	@echo "Docker image $(DOCKER_IMAGE) ready"
 	@mkdir -p $(@D)
