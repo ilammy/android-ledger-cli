@@ -17,15 +17,14 @@ set -eu
 DOCKER_IMAGE=${1:-ilammy/android-ledger-cli:latest}
 
 DOCKER_PATH=/home/user/android-ledger-cli
-
 DOCKER_CONTAINER=prefetch-gradle
 
 # Populate the /home/user/.gradle directory. Keep the container (no --rm).
 docker run -it --name=$DOCKER_CONTAINER -v $PWD:$DOCKER_PATH $DOCKER_IMAGE \
-    /bin/bash -c "cd $DOCKER_PATH && ./gradlew tasks"
+    /bin/sh -c "cd $DOCKER_PATH && ./gradlew --no-daemon dependencies"
 
 # Now commit the current state of the container to the image.
-docker commit --message="Gradle sync" $DOCKER_CONTAINER $DOCKER_IMAGE
+docker commit --change 'CMD ["bash"]' $DOCKER_CONTAINER $DOCKER_IMAGE
 
 # Drop the container we no longer need.
 docker rm $DOCKER_CONTAINER

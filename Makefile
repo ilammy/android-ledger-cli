@@ -88,4 +88,4 @@ $(AAR_PATH): check-submodules docker-image
 
 ## Start an interactive session in Docker container.
 docker-shell: check-submodules docker-image
-	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) /bin/bash || true
+	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) || true
