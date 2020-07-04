@@ -58,7 +58,7 @@ endif
 # First, try pulling the latest version of the image. That might fail.
 # Check if the image is available, and if not then build and tag one.
 # Then check it again, now for real. If it works, create a stamp file.
-$(BUILD)/.docker-image: check-submodules
+$(BUILD)/.docker-image: $(BUILD)/.check-submodules
 	@echo "Checking $(DOCKER_IMAGE)..."
 	@docker image pull $(DOCKER_IMAGE) 2>/dev/null || true
 	@(test "$(DOCKER_FORCE_BUILD)" = "no" && docker run $(DOCKER_IMAGE) true) || \
@@ -80,7 +80,7 @@ DOCKER_PATH = /home/user/android-ledger-cli
 ## Build Ledger AAR
 ledger: $(AAR_PATH)
 
-$(AAR_PATH): check-submodules docker-image
+$(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@echo "Building Ledger..."
 	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
 	     $(DOCKER_IMAGE) \
@@ -89,5 +89,5 @@ $(AAR_PATH): check-submodules docker-image
 	@echo "Output AAR: $@"
 
 ## Start an interactive session in Docker container.
-docker-shell: check-submodules docker-image
+docker-shell: $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) || true
