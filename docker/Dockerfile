@@ -47,33 +47,33 @@ RUN yes | sdkmanager --licenses && \
         'platform-tools'
 
 # Build CMake
-COPY scripts/build-cmake.sh /home/user/build-cmake/
-RUN sudo chown -R user:user ~/build-cmake && \
-    cd ~/build-cmake && \
+COPY --chown=user:user scripts/build-cmake.sh /home/user/build-cmake/
+RUN cd ~/build-cmake && \
     ./build-cmake.sh && \
-    cd && rm -r ~/build-cmake
+    cd && \
+    rm -r ~/build-cmake
 
 # Build GMP
 ENV GMP_PATH=/opt/gmp
-COPY scripts/build-gmp.sh /home/user/build-gmp/
-RUN sudo chown -R user:user ~/build-gmp && \
-    cd ~/build-gmp && \
+COPY --chown=user:user scripts/build-gmp.sh /home/user/build-gmp/
+RUN cd ~/build-gmp && \
     ./build-gmp.sh && \
-    cd && rm -r ~/build-gmp
+    cd && \
+    rm -r ~/build-gmp
 
 # Build MPFR (requires GMP)
 ENV MPFR_PATH=/opt/mpfr
-COPY scripts/build-mpfr.sh /home/user/build-mpfr/
-RUN sudo chown -R user:user ~/build-mpfr && \
-    cd ~/build-mpfr && \
+COPY --chown=user:user scripts/build-mpfr.sh /home/user/build-mpfr/
+RUN cd ~/build-mpfr && \
     ./build-mpfr.sh && \
-    cd && rm -r ~/build-mpfr
+    cd && \
+    rm -r ~/build-mpfr
 
 # Build Boost library
 ENV BOOST_PATH=/opt/boost
-COPY scripts/build-boost.sh    /home/user/build-boost/
-COPY scripts/Boost-for-Android /home/user/build-boost/Boost-for-Android
-RUN sudo chown -R user:user ~/build-boost && \
-    cd ~/build-boost && \
+COPY --chown=user:user scripts/build-boost.sh    /home/user/build-boost/
+COPY --chown=user:user scripts/Boost-for-Android /home/user/build-boost/Boost-for-Android
+RUN cd ~/build-boost && \
     ./build-boost.sh && \
-    cd && rm -r ~/build-boost
+    cd && \
+    rm -r ~/build-boost
