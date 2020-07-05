@@ -1,0 +1,29 @@
+image: debian/stable
+secrets:
+  - 060bd7d4-a2b0-4128-8fdc-c8a35a2a6527
+tasks:
+  - mirror: |
+      # Make sure that "github.com" is the one we expect.
+      ssh-keyscan -H -t rsa github.com > github.known_host
+      ssh-keygen -F github.com -f github.known_host -l > github.fingerprint
+      fingerprint=$(awk '/^github.com/ {print $3}' github.fingerprint)
+      expected="SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8"
+      if [ "$fingerprint" != "$expected" ]
+      then
+          echo "github.com key fingerprint invalid"
+          exit 1
+      fi
+      cat github.known_host >> ~/.ssh/known_hosts
+      rm github.known_host github.fingerprint
+
+      # Make sure we use our secret SSH key for the push.
+      ln -s ~/.ssh/:060bd7d4-a2b0-4128-8fdc-c8a35a2a6527 ~/.ssh/id_ed25519
+
+      # Clone the repository. Do it manually here instead of using "sources"
+      # to avoid cloning submodules (and clone it for mirroring).
+      git clone --quiet --mirror https://git.sr.ht/~ilammy/android-ledger-cli
+      cd android-ledger-cli.git
+
+      # Push current repository into the mirror.
+      git remote set-url --push origin git@github.com:ilammy/android-ledger-cli
+      git push --quiet --mirror
