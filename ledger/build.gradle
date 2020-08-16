@@ -1,4 +1,12 @@
+buildscript {
+    dependencies {
+        // For publishing on Bintray
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.1'
+    }
+}
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
 
 android {
     // Android API levels
@@ -42,4 +50,48 @@ task generateJavadocJar(type: Jar) {
     archiveClassifier = 'javadoc'
     from generateJavadoc.destinationDir
     dependsOn 'generateJavadoc'
+}
+
+// Publishing on Bintray
+
+publishing {
+    publications {
+        LedgerCLI(MavenPublication) {
+            artifact("build/outputs/aar/ledger-release.aar")
+            artifact generateSourceJar
+            artifact generateJavadocJar
+            groupId 'net.ilammy.ledger'
+            artifactId 'ledger-cli'
+            version "0.1.0"
+        }
+    }
+}
+
+bintray {
+    // Bintray publishing credentials must be supplied via environment variables
+    user = System.getenv('BINTRAY_USER')    // Bintray username
+    key  = System.getenv('BINTRAY_API_KEY') // Bintray API Key: https://bintray.com/profile/edit > API key
+    publications = ['LedgerCLI']
+    pkg {
+        repo = 'ledger'
+        name = 'ledger-cli'
+        desc = 'Ledger CLI binary for Android.'
+        licenses = ['GPL-3.0-or-later']
+        vcsUrl = 'https://git.sr.ht/~ilammy/android-ledger-cli'
+        issueTrackerUrl = 'https://todo.sr.ht/~ilammy/android-ledger'
+        websiteUrl = 'https://www.ledger-cli.org'
+        githubRepo = 'ilammy/android-ledger-cli' // mirror
+        githubReleaseNotesFile = 'CHANGELOG.md'
+        labels = ['Android', 'AAR', 'Ledger']
+        publish = false // publish uploads from Bintray site manually
+        version {
+            name = "0.1.0"
+            desc = "Initial upload"
+            vcsTag = "v0.1.0"
+            released = new Date()
+            gpg {
+                sign = true
+            }
+        }
+    }
 }
