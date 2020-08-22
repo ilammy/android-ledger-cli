@@ -108,7 +108,7 @@ $(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@echo "Building Ledger..."
 	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
 	     $(DOCKER_IMAGE) \
-	     /bin/bash -c "cd $(DOCKER_PATH) && ./gradlew assembleRelease"
+	     /bin/bash -c "cd $(DOCKER_PATH) && ./gradlew --no-daemon assembleRelease"
 	@echo
 	@echo "Output AAR: $@"
 
