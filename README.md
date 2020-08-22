@@ -1,4 +1,4 @@
-# ilammy/android-ledger-cli
+# Android Ledger-CLI
 
 Here you can find build scripts for compiling [Ledger] for Android platforms.
 
