@@ -112,6 +112,18 @@ $(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@echo
 	@echo "Output AAR: $@"
 
+## Upload Ledger package to Bintray
+upload: $(AAR_PATH)
+	@echo "Uploading Ledger build..."
+	@( test -n "$(BINTRAY_USER)" || echo "error: BINTRAY_USER is not set" ) && \
+	 ( test -n "$(BINTRAY_API_KEY)" || echo "error: BINTRAY_API_KEY is not set" ) && \
+	 ( test -n "$(BINTRAY_USER)" -a -n "$(BINTRAY_API_KEY)" )
+	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
+	    -e BINTRAY_USER=$(BINTRAY_USER) \
+		-e BINTRAY_API_KEY=$(BINTRAY_API_KEY) \
+	    $(DOCKER_IMAGE) \
+	    /bin/bash -c "cd $(DOCKER_PATH) && ./gradlew --no-daemon bintrayUpload"
+
 ## Start interactive Docker session
 docker-shell: $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) || true
