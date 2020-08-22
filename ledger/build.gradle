@@ -14,8 +14,8 @@ android {
     defaultConfig {
         minSdkVersion    21     // minimum supported version
         targetSdkVersion 28     // target feature version
-        versionCode      1
-        versionName     "0.1.0"
+        versionCode versionCode // from gradle.properties
+        versionName versionName // from gradle.properties
     }
 
     // Android NDK version
@@ -64,7 +64,7 @@ publishing {
             artifact generateJavadocJar
             groupId 'net.ilammy.ledger'
             artifactId 'ledger-cli'
-            version "0.1.0"
+            version versionName // from gradle.properties
         }
     }
 }
@@ -77,7 +77,7 @@ bintray {
     pkg {
         repo = 'ledger'
         name = 'ledger-cli'
-        desc = 'Ledger CLI binary for Android.'
+        desc = 'Ledger CLI binary for Android'
         licenses = ['GPL-3.0-or-later']
         vcsUrl = 'https://git.sr.ht/~ilammy/android-ledger-cli'
         issueTrackerUrl = 'https://todo.sr.ht/~ilammy/android-ledger'
@@ -87,9 +87,9 @@ bintray {
         labels = ['Android', 'AAR', 'Ledger']
         publish = false // publish uploads from Bintray site manually
         version {
-            name = "0.1.0"
-            desc = "Initial upload"
-            vcsTag = "v0.1.0"
+            name = versionName // from gradle.properties
+            desc = versionDesc // from gradle.properties
+            vcsTag = 'v' + versionName
             released = new Date()
             gpg {
                 sign = true
