@@ -1,0 +1,168 @@
+From f96d19d978648bb2fc6be327a84fa6e7fc6cb91c Mon Sep 17 00:00:00 2001
+From: ilammy <me@ilammy.net>
+Date: Mon, 24 Aug 2020 11:59:07 +0300
+Subject: [PATCH] Build only libledger.a static library
+
+We not going to use the "ledger" binary directly, instead we will
+provide a programmatic API for manipulating journal files. "libledger"
+library contains all necessary code, however, it's not that easy to link
+it into the supporting code.
+
+Since this code is going to be called from Java, we need a JNI wrapper
+library -- a shared object exporting JNI symbols. However, recent
+versions of Android does not allow shared libraries to depend on other
+shared libraries [1]. Therefore if are going to pull in any native code,
+it must be a single self-contained shared library.
+
+[1]: https://android.googlesource.com/platform/bionic/+/master/android-changes-for-ndk-developers.md
+     (see "Private API section)
+
+Unfortunately, CMake does not allow to change a type of a target after
+it has been created, or to easily create a different target based on
+a given one. So the easiest way to get Ledger build system to produce
+a static library is to patch it directly.
+
+This changes the type of "libledger" target to STATIC, which will be
+linked into a different JNI library produced outside of Ledger build.
+
+Also note that we tell CMake to always build position-independent code.
+By default Linux compilers with produce non-PIC objects when preparing
+a static library (since they are expected to be linked into a static
+binary). However, on Android PIC is mandatory even for binaries, let
+alone for a *shared* JNI library. Make sure to use PIC.
+
+While we're here, remove all other targets that are not interesting to
+us. In particular, the "ledger" binary that we don't need now, and some
+unit test binaries (which actually fail to link with the Boost libraries
+from Docker image, because for some reason they have been compiled with
+BOOST_TEST_ALTERNATIVE_API; see git history for previous version of this
+patch to learn more details).
+
+Signed-off-by: ilammy <me@ilammy.net>
+---
+ src/CMakeLists.txt       | 22 ++++------------------
+ test/CMakeLists.txt      | 23 -----------------------
+ test/unit/CMakeLists.txt | 15 ---------------
+ 3 files changed, 4 insertions(+), 56 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index b3d13a29..3fd3e2b5 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -274,34 +274,22 @@ include(GNUInstallDirs)
+ 
+ if (BUILD_LIBRARY)
+   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+-  add_library(libledger SHARED ${LEDGER_SOURCES})
++  add_library(libledger STATIC ${LEDGER_SOURCES})
+   add_ledger_library_dependencies(libledger)
+   set_target_properties(libledger PROPERTIES
+     PREFIX ""
+-    INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+-    VERSION ${Ledger_VERSION_MAJOR}
+-    SOVERSION ${Ledger_VERSION_MAJOR})
+-
+-  add_executable(ledger main.cc global.cc)
+-  target_link_libraries(ledger libledger)
+-  if (HAVE_BOOST_PYTHON)
+-    target_link_libraries(ledger ${Python_LIBRARIES})
+-  endif()
++    # Force build with PIC since it is going to be included into a shared library
++    POSITION_INDEPENDENT_CODE 1
++  )
+ 
+   install(TARGETS libledger DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   install(FILES ${LEDGER_INCLUDES}
+     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ledger)
+-else()
+-  add_executable(ledger ${LEDGER_SOURCES} main.cc global.cc)
+-  add_ledger_library_dependencies(ledger)
+ endif()
+ 
+ if (PRECOMPILE_SYSTEM_HH AND (COMMAND target_precompile_headers) AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+   if (BUILD_LIBRARY)
+     target_precompile_headers(libledger PRIVATE ${PROJECT_BINARY_DIR}/system.hh)
+-    target_precompile_headers(ledger REUSE_FROM libledger)
+-  else()
+-    target_precompile_headers(ledger PRIVATE ${PROJECT_BINARY_DIR}/system.hh)
+   endif()
+ endif()
+ 
+@@ -331,6 +319,4 @@ if (USE_PYTHON)
+   endif()
+ endif()
+ 
+-install(TARGETS ledger DESTINATION ${CMAKE_INSTALL_BINDIR})
+-
+ ### CMakeLists.txt ends here
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index 24be0cdf..58ce018a 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -28,14 +28,6 @@ macro(add_ledger_harness_tests _class)
+           continue()
+         endif()
+       endif()
+-      if ((TestFile_IsPythonTest EQUAL -1) OR HAVE_BOOST_PYTHON)
+-        add_test(NAME ${_class}Test_${TestFile_Name}
+-          COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/RegressTests.py
+-          $<TARGET_FILE:ledger> ${PROJECT_SOURCE_DIR}
+-          ${TestFile} ${TEST_PYTHON_FLAGS})
+-        set_tests_properties(${_class}Test_${TestFile_Name}
+-          PROPERTIES ENVIRONMENT "TZ=${Ledger_TEST_TIMEZONE}")
+-      endif()
+     endforeach()
+   endif()
+ endmacro(add_ledger_harness_tests _class)
+@@ -47,25 +39,10 @@ add_subdirectory(regress)
+ if (Python_EXECUTABLE)
+   set(_class DocTests)
+   file(GLOB ${_class}_TESTS ${PROJECT_SOURCE_DIR}/doc/*.texi)
+-  foreach(TestFile ${${_class}_TESTS})
+-    get_filename_component(TestFile_Name ${TestFile} NAME_WE)
+-    add_test(NAME ${_class}Test_${TestFile_Name}
+-      COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/${_class}.py
+-      --ledger $<TARGET_FILE:ledger> --file ${TestFile})
+-    set_tests_properties(${_class}Test_${TestFile_Name}
+-      PROPERTIES ENVIRONMENT "TZ=${Ledger_TEST_TIMEZONE}")
+-  endforeach()
+ 
+   # CheckManpage and CheckTexinfo are disabled, since they do not work
+   # reliably yet, instead they are being run as a Travis CI report.
+   list(APPEND CheckOptions CheckBaselineTests) #CheckManpage CheckTexinfo
+-  foreach(_class ${CheckOptions})
+-    add_test(NAME ${_class}
+-      COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/test/${_class}.py
+-      --ledger $<TARGET_FILE:ledger> --source ${PROJECT_SOURCE_DIR})
+-    set_tests_properties(${_class}
+-      PROPERTIES ENVIRONMENT "TZ=${Ledger_TEST_TIMEZONE}")
+-  endforeach()
+ 
+   if (HAVE_BOOST_PYTHON)
+     add_test(NAME demo
+diff --git a/test/unit/CMakeLists.txt b/test/unit/CMakeLists.txt
+index 1bd5e4b3..73eb4d4a 100644
+--- a/test/unit/CMakeLists.txt
++++ b/test/unit/CMakeLists.txt
+@@ -6,18 +6,3 @@ macro(add_ledger_test _name)
+ endmacro(add_ledger_test _name)
+ 
+ include_directories(${PROJECT_SOURCE_DIR}/src)
+-
+-if (BUILD_LIBRARY)
+-  add_executable(UtilTests t_times.cc)
+-  if (HAVE_BOOST_PYTHON)
+-    target_link_libraries(UtilTests ${Python_LIBRARIES})
+-  endif()
+-  add_ledger_test(UtilTests)
+-
+-  add_executable(MathTests t_amount.cc t_commodity.cc t_balance.cc t_expr.cc t_value.cc)
+-  set_source_files_properties(t_amount.cc t_value.cc PROPERTIES COMPILE_FLAGS "-Wno-unused-comparison")
+-  if (HAVE_BOOST_PYTHON)
+-    target_link_libraries(MathTests ${Python_LIBRARIES})
+-  endif()
+-  add_ledger_test(MathTests)
+-endif()
+-- 
+2.25.1
+
