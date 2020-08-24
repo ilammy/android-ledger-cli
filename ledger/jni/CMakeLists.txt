@@ -1,5 +1,8 @@
 set(JNI_SRC
     example.cc
+    exceptions.cc
+    global.cc
+    session.cc
 )
 add_library(ledger_jni SHARED ${JNI_SRC})
 
