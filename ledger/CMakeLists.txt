@@ -40,6 +40,9 @@ set(BUILD_LIBRARY ON CACHE BOOL "Build libledger.a" FORCE)
 # Include Ledger build system.
 add_subdirectory(ledger)
 
+# Include JNI library.
+add_subdirectory(jni)
+
 # Android build system refuses to package non-libraries into APKs
 # and Google refuses to care about that. The common workaround is
 # to rename binaries so that they look like libraries.
