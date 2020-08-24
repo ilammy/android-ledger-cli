@@ -34,11 +34,8 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
     CACHE FILEPATH "CMake search prefixes"
     FORCE)
 
-# Tell Ledger build system to build (mostly) statically-linked binary,
-# without libledger.so. Android will refuse to load extra libraries.
-# See "Private API" section here:
-# https://android.googlesource.com/platform/bionic/+/master/android-changes-for-ndk-developers.md
-set(BUILD_LIBRARY OFF CACHE BOOL "Build libledger.so" FORCE)
+# Tell Ledger build system to always build the library.
+set(BUILD_LIBRARY ON CACHE BOOL "Build libledger.a" FORCE)
 
 # Include Ledger build system.
 add_subdirectory(ledger)
