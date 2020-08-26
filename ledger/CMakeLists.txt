@@ -2,12 +2,31 @@ cmake_minimum_required(VERSION 2.8.5)
 
 project(Ledger)
 
+# There are default installation paths of vendored dependencies created
+# by "make ledger-libs". They are used for local development. CI builds
+# override them via environment variables.
+if(DEFINED ENV{BOOST_PATH})
+    set(BOOST_PATH $ENV{BOOST_PATH})
+else()
+    set(BOOST_PATH ${CMAKE_CURRENT_LIST_DIR}/libs/boost)
+endif()
+if(DEFINED ENV{GMP_PATH})
+    set(GMP_PATH $ENV{GMP_PATH})
+else()
+    set(GMP_PATH ${CMAKE_CURRENT_LIST_DIR}/libs/gmp)
+endif()
+if(DEFINED ENV{MPFR_PATH})
+    set(MPFR_PATH $ENV{MPFR_PATH})
+else()
+    set(MPFR_PATH ${CMAKE_CURRENT_LIST_DIR}/libs/mpfr)
+endif()
+
 # Sometimes CMake creates more problems than it solves.
 # In particular, FindBoost.cmake script has somewhat poor support
 # of Boost installations in weird places used for cross-compilation.
 # So we do part of its job and provide some hard hints about locations
 # of "Boost CMake" scripts which will figure out the rest.
-set(BOOST_ROOT $ENV{BOOST_PATH}/${ANDROID_ABI}
+set(BOOST_ROOT ${BOOST_PATH}/${ANDROID_ABI}
     CACHE PATH "Boost installation directory"
     FORCE)
 set(Boost_USE_STATIC_LIBS ON
@@ -29,8 +48,8 @@ set(CMAKE_FIND_ROOT_PATH "/" ${CMAKE_FIND_ROOT_PATH}
 
 # Add these paths to search prefixes so that these libraries can be found.
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-    $ENV{GMP_PATH}/${ANDROID_ABI}
-    $ENV{MPFR_PATH}/${ANDROID_ABI}
+    ${GMP_PATH}/${ANDROID_ABI}
+    ${MPFR_PATH}/${ANDROID_ABI}
     CACHE FILEPATH "CMake search prefixes"
     FORCE)
 
