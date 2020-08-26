@@ -3,4 +3,4 @@
 	url = https://github.com/moritz-wundke/Boost-for-Android
 [submodule "ledger/ledger"]
 	path = ledger/ledger
-	url = https://github.com/ledger/ledger
+	url = https://git.sr.ht/~ilammy/ledger

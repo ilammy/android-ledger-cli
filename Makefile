@@ -104,7 +104,7 @@ DOCKER_PATH = /home/user/android-ledger-cli
 ## Build Ledger AAR
 ledger: $(AAR_PATH)
 
-$(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image $(BUILD)/.patch-ledger
+$(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@echo "Building Ledger..."
 	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
 	     $(DOCKER_IMAGE) \
@@ -127,24 +127,3 @@ upload: $(AAR_PATH)
 ## Start interactive Docker session
 docker-shell: $(BUILD)/.check-submodules $(BUILD)/.docker-image
 	@docker run -it --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) || true
-
-LEDGER_SOURCE_TREE = ledger/ledger
-LEDGER_PATCHES_DIR = ledger/patches
-
-## Apply patches to Ledger source code
-apply-patches: $(BUILD)/.patch-ledger
-
-$(BUILD)/.patch-ledger:
-	@cd $(LEDGER_SOURCE_TREE) && git am --committer-date-is-author-date $(abspath $(LEDGER_PATCHES_DIR))/*
-	@mkdir -p $(@D)
-	@touch $@
-
-## Unapply patches to Ledger source code
-unapply-patches:
-	@git submodule update -- $(LEDGER_SOURCE_TREE)
-	@rm -f $(BUILD)/.patch-ledger
-
-## Snapshot current diff in Ledger source code
-refresh-patches:
-	@origin=$$(git submodule status --cached $(LEDGER_SOURCE_TREE) | awk '{print $$1}' | cut -c 2-); \
-	 cd $(LEDGER_SOURCE_TREE) && git format-patch -o $(abspath $(LEDGER_PATCHES_DIR)) $$origin
