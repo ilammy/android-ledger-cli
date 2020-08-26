@@ -26,8 +26,6 @@ android {
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
-            // Must match the one the Docker image
-            version "3.17.3"
         }
     }
 }
