@@ -4,3 +4,6 @@ build/
 # Gradle stuff
 .gradle/
 .cxx/
+
+# Ledger vendored libraries
+ledger/libs/

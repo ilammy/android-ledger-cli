@@ -93,6 +93,21 @@ $(BUILD)/.docker-image: $(BUILD)/.check-submodules
 	@mkdir -p $(@D)
 	@touch $@
 
+# Path to vendored library directory in the source tree
+LEDGER_LIBS = ledger/libs
+
+## Copy vendored Ledger dependencies
+ledger-libs: $(BUILD)/.ledger-libs
+
+$(BUILD)/.ledger-libs: $(BUILD)/.docker-image
+	@echo "Vendoring Ledger dependencies..."
+	@mkdir -p $(LEDGER_LIBS)
+	@docker run --rm -v $(abspath $(LEDGER_LIBS)):/mnt/host $(DOCKER_IMAGE) \
+	    /bin/bash -c 'cp -ar /opt/* /mnt/host/'
+	@echo "Copied to $(LEDGER_LIBS)"
+	@mkdir -p $(@D)
+	@touch $@
+
 # === Ledger ===================
 
 # Path to resulting AAR
