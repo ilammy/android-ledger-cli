@@ -42,7 +42,7 @@ MPFR_TARBALL=mpfr.tar.xz
 
 echo "Downloading MPFR $MPFR_VERSION..."
 wget -O $MPFR_TARBALL \
-    https://www.mpfr.org/mpfr-current/mpfr-$MPFR_VERSION.tar.xz
+    https://www.mpfr.org/mpfr-$MPFR_VERSION/mpfr-$MPFR_VERSION.tar.xz
 
 CHECKSUM=$(shasum --algorithm 256 $MPFR_TARBALL | awk '{print $1}')
 if [[ $CHECKSUM != $MPFR_SHA_256 ]]; then
