@@ -42,11 +42,12 @@ ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tool
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
         'build-tools;29.0.2' \
+        'cmake;3.10.2.4988404' \
         'ndk;20.0.5594570' \
         'platforms;android-28' \
         'platform-tools'
 
-# Build CMake
+# Build CMake (for Boost)
 COPY --chown=user:user scripts/build-cmake.sh /home/user/build-cmake/
 RUN cd ~/build-cmake && \
     ./build-cmake.sh && \
