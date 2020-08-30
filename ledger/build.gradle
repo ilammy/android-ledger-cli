@@ -52,7 +52,7 @@ task generateJavadoc(type: Javadoc) {
     // finds their classes and links to them correctly.
     classpath += files(android.bootClasspath)
     android.libraryVariants.all { variant ->
-        classpath += variant.javaCompile.classpath
+        classpath += variant.javaCompileProvider.get().classpath
     }
 }
 
