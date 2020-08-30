@@ -116,10 +116,16 @@ AAR_PATH = ledger/build/outputs/aar/ledger-release.aar
 # Path to build directory inside Docker container
 DOCKER_PATH = /home/user/android-ledger-cli
 
+# Source file dependencies for accurate rebuild tracking
+LEDGER_SOURCE_DEPS += .gitmodules
+LEDGER_SOURCE_DEPS += ledger/build.gradle ledger/CMakeLists.txt
+LEDGER_SOURCE_DEPS += $(wildcard ledger/src/main/java/net/ilammy/ledger/api/*)
+LEDGER_SOURCE_DEPS += $(wildcard ledger/jni/*)
+
 ## Build Ledger AAR
 ledger: $(AAR_PATH)
 
-$(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image
+$(AAR_PATH): $(BUILD)/.check-submodules $(BUILD)/.docker-image $(LEDGER_SOURCE_DEPS)
 	@echo "Building Ledger..."
 	@docker run --rm -v $(PWD):$(DOCKER_PATH) \
 	     $(DOCKER_IMAGE) \
