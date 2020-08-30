@@ -42,6 +42,24 @@ void JNICALL Java_net_ilammy_ledger_api_Session_deleteSession(JNIEnv *env, jclas
 }
 
 extern "C" JNIEXPORT
+jlong JNICALL Java_net_ilammy_ledger_api_Session_getJournal(JNIEnv *env, jclass klass, jlong sessionPtr)
+{
+    try {
+        auto session = reinterpret_cast<ledger::session_t*>(sessionPtr);
+        if (!session) {
+            throw std::invalid_argument("sessionPtr cannot be null");
+        }
+
+        auto journal = session->get_journal();
+        return reinterpret_cast<jlong>(journal);
+    }
+    catch (const std::exception &e) {
+        ledger_jni::rethrow_as_java_runtime_exception(env, e);
+        return 0;
+    }
+}
+
+extern "C" JNIEXPORT
 void JNICALL Java_net_ilammy_ledger_api_Session_readJournalFromString(JNIEnv *env, jclass klass, jlong sessionPtr, jbyteArray data)
 {
     try {
