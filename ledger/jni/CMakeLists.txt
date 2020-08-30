@@ -1,5 +1,4 @@
 set(JNI_SRC
-    example.cc
     exceptions.cc
     global.cc
     session.cc
