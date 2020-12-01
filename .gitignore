@@ -6,7 +6,7 @@ build/
 .cxx/
 
 # Ledger vendored libraries
-ledger/libs/
+ledger/ledger_wrap/lib/
 
 # Android Studio stuff
 # https://rider-support.jetbrains.com/hc/en-us/articles/207097529-What-is-the-idea-folder-
