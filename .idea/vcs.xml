@@ -3,6 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/docker/scripts/Boost-for-Android" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ledger/ledger" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ledger/ledger_wrap/ledger" vcs="Git" />
   </component>
 </project>

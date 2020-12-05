@@ -1,4 +1,4 @@
-LEDGER_JNI_ABI_0.1 {
-    global: *Java_net_ilammy_ledger_api*;
+LEDGER_JNI_0.1 {
+    global: Java_net_ilammy_ledger_api_*;
     local: *;
 };
