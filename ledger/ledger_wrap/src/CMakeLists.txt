@@ -119,15 +119,13 @@ function(bundle_static_library tgt_name bundled_tgt_name)
             OUTPUT ${PROJECT_BINARY_DIR}/${bundled_tgt_name}.mri
             INPUT  ${PROJECT_BINARY_DIR}/${bundled_tgt_name}.mri.in)
 
-        # Choose an "ar" tool to use. If LTO is used, we might need compiler assistance.
-        set(ar_tool ${CMAKE_AR})
-        if (CMAKE_INTERPROCEDURAL_OPTIMIZATION)
-            set(ar_tool ${CMAKE_CXX_COMPILER_AR})
-        endif()
-
         # Finally, add a custom command to build the bundled library with "ar".
+        # "ar" in MRI mode does not rebuild the archive if it's already there
+        # so make sure to remove it first.
         add_custom_command(
-            COMMAND ${ar_tool} -M < ${PROJECT_BINARY_DIR}/${bundled_tgt_name}.mri
+            COMMAND rm -f ${bundled_tgt_full_name}
+            COMMAND ${CMAKE_AR} -M < ${PROJECT_BINARY_DIR}/${bundled_tgt_name}.mri
+            COMMAND ${CMAKE_RANLIB} ${bundled_tgt_full_name}
             OUTPUT ${bundled_tgt_full_name}
             COMMENT "Bundling ${bundled_tgt_name}"
             VERBATIM)
