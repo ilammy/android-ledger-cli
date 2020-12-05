@@ -25,6 +25,12 @@ target_include_directories(ledger_wrap SYSTEM PRIVATE
     ${UTFCPP_INCLUDE_DIR}
 )
 
+# We would like to be able to optimize away most of the wrapper code during linkage.
+set_target_properties(ledger_wrap
+    PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+)
+
 # And now we need to bundle "ledger_wrap" with all its transitive dependencies
 # into a single combined static library. After many experiments and much Googling
 # I have not found anything that really works. However, thanks to Cristian Adam:
