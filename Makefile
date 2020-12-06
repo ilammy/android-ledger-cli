@@ -20,6 +20,9 @@ clean:
 	@rm -rf $(BUILD)
 	@rm -rf ledger/build
 	@rm -rf ledger/.cxx
+
+## Clean the build directory completely
+cleaner: clean
 	@rm -rf ledger/ledger_wrap/build
 	@rm -rf ledger/ledger_wrap/lib
 
