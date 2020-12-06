@@ -13,10 +13,15 @@ endif()
 
 # Define the prebuilt Ledger library amalgamation.
 add_library(ledger_amalgam STATIC IMPORTED)
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    set(ledger_build_mode "debug")
+else()
+    set(ledger_build_mode "release")
+endif()
 set_target_properties(ledger_amalgam
     PROPERTIES
     IMPORTED_LINK_INTERFACE_LANGUAGES "C;CXX"
-    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/ledger_wrap/lib/${ANDROID_ABI}/${CMAKE_STATIC_LIBRARY_PREFIX}ledger_amalgam${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/ledger_wrap/lib/${ledger_build_mode}/${ANDROID_ABI}/${CMAKE_STATIC_LIBRARY_PREFIX}ledger_amalgam${CMAKE_STATIC_LIBRARY_SUFFIX}"
     INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/ledger_wrap/include"
 )
 

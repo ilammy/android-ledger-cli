@@ -27,27 +27,30 @@ mkdir -p build
 mkdir -p lib
 
 for target in $ANDROID_TARGETS; do
-    echo "Building for $target..."
-    echo
+    for cmake_mode in Debug Release; do
+        mode=$(echo "$cmake_mode" | tr '[:upper:]' '[:lower:]')
+        echo "Building for $target ($mode)..."
+        echo
 
-    echo "Configuring..."
-    mkdir -p "build/$target"
-    cd "build/$target"
-    $ANDROID_CMAKE_PATH/cmake -GNinja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-        -DANDROID_ABI=$target \
-        -DANDROID_PLATFORM=android-$ANDROID_API \
-        ../..
-    echo
+        echo "Configuring..."
+        mkdir -p "build/$mode/$target"
+        cd "build/$mode/$target"
+        $ANDROID_CMAKE_PATH/cmake -GNinja \
+            -DCMAKE_BUILD_TYPE=$cmake_mode \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=$target \
+            -DANDROID_PLATFORM=android-$ANDROID_API \
+            ../../..
+        echo
 
-    echo "Building..."
-    $ANDROID_CMAKE_PATH/ninja libledger_amalgam.a
-    cd ../..
-    mkdir -p "lib/$target"
-    ln -f "build/$target/libledger_amalgam.a" "lib/$target"
-    echo
+        echo "Building..."
+        $ANDROID_CMAKE_PATH/ninja libledger_amalgam.a
+        cd ../../..
+        mkdir -p "lib/$mode/$target"
+        ln -f "build/$mode/$target/libledger_amalgam.a" "lib/$mode/$target"
+        echo
 
-    echo "Done with $target"
-    echo
+        echo "Done with $target ($mode)"
+        echo
+    done
 done
