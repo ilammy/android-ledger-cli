@@ -23,11 +23,45 @@ ANDROID_CMAKE_PATH=${ANDROID_CMAKE_PATH:-$ANDROID_HOME/cmake/3.10.2.4988404/bin}
 
 ANDROID_TARGETS="arm64-v8a armeabi-v7a x86 x86_64"
 
+build_debug=
+build_release=
+while [[ $# -ne 0 ]]; do
+    case "$1" in
+        --debug)
+            build_debug=yes
+            [[ -z "$build_release" ]] && build_release=no
+            ;;
+        --no-debug)
+            build_debug=no
+            [[ -z "$build_release" ]] && build_release=yes
+            ;;
+        --release)
+            build_release=yes
+            [[ -z "$build_debug" ]] && build_debug=no
+            ;;
+        --no-release)
+            build_release=no
+            [[ -z "$build_debug" ]] && build_debug=yes
+            ;;
+        *)
+            echo 2>&1 "unknown option: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+[[ -z "$build_debug" ]]   && build_debug=yes
+[[ -z "$build_release" ]] && build_release=yes
+
+CMAKE_MODES=
+[[ "$build_debug"   = "yes" ]] && CMAKE_MODES="${CMAKE_MODES} Debug"
+[[ "$build_release" = "yes" ]] && CMAKE_MODES="${CMAKE_MODES} Release"
+
 mkdir -p build
 mkdir -p lib
 
 for target in $ANDROID_TARGETS; do
-    for cmake_mode in Debug Release; do
+    for cmake_mode in $CMAKE_MODES; do
         mode=$(echo "$cmake_mode" | tr '[:upper:]' '[:lower:]')
         echo "Building for $target ($mode)..."
         echo
@@ -54,3 +88,20 @@ for target in $ANDROID_TARGETS; do
         echo
     done
 done
+
+if [[ -z "$CMAKE_MODES" ]]; then
+    echo "Nothing to build"
+else
+    for target in $ANDROID_TARGETS; do
+        echo -n "Complete: "
+        mode=
+        for cmake_mode in $CMAKE_MODES; do
+            [[ ! -z "$mode" ]] && echo -n ", "
+            mode=$(echo "$cmake_mode" | tr '[:upper:]' '[:lower:]')
+            echo -n "$mode"
+        done
+        echo -n ": $target"
+        echo
+    done
+fi
+echo

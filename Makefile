@@ -152,6 +152,6 @@ $(BUILD)/.ledger-libs: $(BUILD)/.docker-image $(LEDGER_LIBS_SOURCE_DEPS)
 	@echo "Building Ledger libraries..."
 	@echo
 	@docker run --rm -v $(PWD):$(DOCKER_PATH) $(DOCKER_IMAGE) \
-	    /bin/bash -c 'cd $(DOCKER_PATH)/ledger/ledger_wrap && ./build.sh'
+	    /bin/bash -c 'cd $(DOCKER_PATH)/ledger/ledger_wrap && ./build.sh --release'
 	@mkdir -p $(@D)
 	@touch $@
