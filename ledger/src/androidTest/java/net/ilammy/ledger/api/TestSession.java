@@ -3,6 +3,7 @@ package net.ilammy.ledger.api;
 import org.junit.Test;
 
 import static net.ilammy.ledger.api.Assert.assertThrows;
+import static org.junit.Assert.assertNotNull;
 
 public class TestSession {
     @Test
@@ -14,6 +15,7 @@ public class TestSession {
 
         try (Session session = new Session()) {
             session.readJournalFromString(journal);
+            assertNotNull(session.getJournal());
         }
     }
 

@@ -1,5 +1,6 @@
 set(LEDGER_WRAP_SRC
     global.cc
+    journal.cc
     session.cc
 )
 add_library(ledger_wrap STATIC ${LEDGER_WRAP_SRC})

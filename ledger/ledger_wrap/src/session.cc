@@ -4,6 +4,8 @@
 #include <system.hh>
 #include <session.h>
 
+#include <ledger_wrap/journal.h>
+
 #include "global.h"
 
 namespace ledger_wrap
@@ -29,6 +31,11 @@ session_t& session_t::read_journal_from_string(const std::string &data)
 {
     session->read_journal_from_string(data);
     return *this;
+}
+
+journal_ptr session_t::get_journal()
+{
+    return journal_ptr(session->get_journal());
 }
 
 } // namespace ledger_wrap::impl

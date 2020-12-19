@@ -4,6 +4,7 @@
 #include <string>
 
 #include <ledger_wrap/forward.h>
+#include <ledger_wrap/journal.h>
 
 namespace ledger_wrap
 {
@@ -27,6 +28,11 @@ public:
     ///
     /// This invalidates all previously obtained accessors into journal data.
     session_t& read_journal_from_string(const std::string &data);
+
+    /// Returns journal object of this session.
+    ///
+    /// Returned object is invalidated on any modifications to the session.
+    journal_ptr get_journal();
 
 private:
     friend class ledger_wrap::session_ptr;

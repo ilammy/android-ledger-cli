@@ -15,6 +15,9 @@ public final class Session implements AutoCloseable {
     // Pointer to native ledger::session_t object.
     private long sessionPtr;
 
+    // Cached journal of this session.
+    private Journal journal;
+
     private static native long newSession();
     private static native void deleteSession(long sessionPtr);
 
@@ -35,6 +38,10 @@ public final class Session implements AutoCloseable {
      */
     public void close() {
         if (sessionPtr != 0) {
+            if (journal != null) {
+                journal.close();
+                journal = null;
+            }
             deleteSession(sessionPtr);
             sessionPtr = 0;
         }
@@ -54,5 +61,18 @@ public final class Session implements AutoCloseable {
      */
     public void readJournalFromString(@NonNull String data) {
         readJournalFromString(data.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static native long getJournal(long sessionPtr);
+
+    /**
+     * Get journal object.
+     */
+    @NonNull
+    public Journal getJournal() {
+        if (journal == null) {
+            journal = new Journal(getJournal(sessionPtr));
+        }
+        return journal;
     }
 }

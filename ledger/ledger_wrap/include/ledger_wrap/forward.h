@@ -6,6 +6,7 @@
 namespace ledger
 {
 
+class journal_t;
 class session_t;
 
 } // namespace ledger
