@@ -1,5 +1,9 @@
 package net.ilammy.ledger.api;
 
+import android.support.annotation.NonNull;
+
+import java.nio.charset.StandardCharsets;
+
 /**
  * Session owns an individual journal and provides supporting operations on it.
  */
@@ -41,7 +45,14 @@ public final class Session implements AutoCloseable {
     /**
      * Read in a journal file from memory buffer.
      */
-    public void readJournalFromString(byte[] data) {
+    public void readJournalFromString(@NonNull byte[] data) {
         readJournalFromString(sessionPtr, data);
+    }
+
+    /**
+     * Read in a journal file from a string.
+     */
+    public void readJournalFromString(@NonNull String data) {
+        readJournalFromString(data.getBytes(StandardCharsets.UTF_8));
     }
 }

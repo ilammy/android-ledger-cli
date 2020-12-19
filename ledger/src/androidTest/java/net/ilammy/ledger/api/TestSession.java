@@ -2,8 +2,6 @@ package net.ilammy.ledger.api;
 
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-
 import static net.ilammy.ledger.api.Assert.assertThrows;
 
 public class TestSession {
@@ -15,7 +13,7 @@ public class TestSession {
                 "    Equity\n";
 
         try (Session session = new Session()) {
-            session.readJournalFromString(journal.getBytes(StandardCharsets.UTF_8));
+            session.readJournalFromString(journal);
         }
     }
 
@@ -31,7 +29,7 @@ public class TestSession {
             assertThrows(new Runnable() {
                 @Override
                 public void run() {
-                    session.readJournalFromString(journal.getBytes(StandardCharsets.UTF_8));
+                    session.readJournalFromString(journal);
                 }
             });
         }
