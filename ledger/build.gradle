@@ -93,7 +93,7 @@ bintray {
         repo = 'ledger'
         name = 'ledger-cli'
         desc = 'Ledger CLI binary for Android'
-        licenses = ['LGPL-3.0-or-later']
+        licenses = ['LGPL-3.0-only']
         vcsUrl = 'https://git.sr.ht/~ilammy/android-ledger-cli'
         issueTrackerUrl = 'https://todo.sr.ht/~ilammy/android-ledger'
         websiteUrl = 'https://www.ledger-cli.org'

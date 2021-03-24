@@ -30,7 +30,7 @@ please go to [BUILDING.md](BUILDING.md).
 ## License
 
 The combined result — Ledger AAR — is distributed under [GNU LGPL v3](LICENSE)
-or any later version at your choice.
+(exactly).
 
 The reasons for this are complicated.
 Ledger itself is licensed under BSD-style license.
